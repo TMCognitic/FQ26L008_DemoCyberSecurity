@@ -14,7 +14,10 @@ builder.Services.AddAdvancedSecurity(so =>
           .AddHeaders(new HeaderInfo("X-User-Agent", value => value is "BlazorApp"), new HeaderInfo("Y-X-MyCustomHeader", (value) => Guid.TryParse(value, out _)));
     });
 
-    so.EnableRate(ro => ro.RateLimitPerMinute = 10);
+    so.EnableRate(ro => {
+        ro.RateLimitPerMinute = 10;
+        ro.RateLimitPerHour = 500;
+    });
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
