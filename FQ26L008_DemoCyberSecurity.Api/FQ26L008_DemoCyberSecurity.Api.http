@@ -1,0 +1,6 @@
+@FQ26L008_DemoCyberSecurity.Api_HostAddress = http://localhost:5020
+
+GET {{FQ26L008_DemoCyberSecurity.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

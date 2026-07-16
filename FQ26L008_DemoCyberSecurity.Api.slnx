@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FQ26L008_DemoCyberSecurity.Api/FQ26L008_DemoCyberSecurity.Api.csproj" />
+  <Project Path="Tools.AspNet.Security/Tools.AspNet.Security.csproj" Id="3801aeff-0616-483c-8c53-c048859e4453" />
+</Solution>
