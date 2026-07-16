@@ -1,4 +1,8 @@
-﻿namespace Tools.AspNet.Security
+﻿using Microsoft.AspNetCore.RateLimiting;
+using System.Net;
+using System.Threading.RateLimiting;
+
+namespace Tools.AspNet.Security
 {
     public static class ServiceCollectionExtensions
     {
@@ -43,6 +47,37 @@
                     }));
                 }
 
+                if (optionsBuilder.UseRateLimit)
+                {
+                    RateLimitOptionsBuilder rateLimitOptions = optionsBuilder.RateLimitOptionsBuilder;
+
+                    services.AddRateLimiter(options =>
+                    {
+                        options.GlobalLimiter = PartitionedRateLimiter.CreateChained(
+                            PartitionedRateLimiter.Create<HttpContext, string>(httpContext => RateLimitPartition.GetFixedWindowLimiter(partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown", factory: _ => new FixedWindowRateLimiterOptions {
+                                PermitLimit = rateLimitOptions.RateLimitPerMinute,
+                                Window = TimeSpan.FromMinutes(1)
+                            })),
+                            PartitionedRateLimiter.Create<HttpContext, string>(httpContext => RateLimitPartition.GetFixedWindowLimiter(partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown", factory: _ => new FixedWindowRateLimiterOptions
+                            {
+                                PermitLimit = rateLimitOptions.RateLimitPerHour,
+                                Window = TimeSpan.FromHours(1)
+                            }))
+                        );
+
+                        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                        //ou
+                        //options.OnRejected = async (context, cancellationToken) =>
+                        //{
+                        //    // Custom rejection handling logic
+                        //    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                        //    context.HttpContext.Response.Headers["Retry-After"] = "60";
+
+                        //    await context.HttpContext.Response.WriteAsync("Rate limit exceeded. Please try again later.", cancellationToken);
+                        //};
+                    });
+                }
+
                 return services;
             }
         }
@@ -56,8 +91,14 @@
                 if (advancedSecurityOptionsBuilder.UseCors)
                 {
                     app.UseCors(AdvancedSecurityOptionsBuilder.CorsPolicyName);
-                    app.UseMiddleware<AdvancedSecurityMiddleware>();
                 }
+
+                if(advancedSecurityOptionsBuilder.UseRateLimit)
+                {
+                    app.UseRateLimiter();
+                }
+
+                app.UseMiddleware<AdvancedSecurityMiddleware>();
 
                 return app;
             }

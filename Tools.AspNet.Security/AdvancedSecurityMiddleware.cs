@@ -13,7 +13,7 @@ namespace Tools.AspNet.Security
             string method = httpContext.Request.Method;
             IPAddress? address = httpContext.Connection.RemoteIpAddress;
 
-            if (!await ValidateHeaders(httpContext))
+            if (advancedSecurityOptions.UseCors && !await ValidateHeaders(httpContext))
             {
                 logger.LogWarning("Request blocked from {Address} by personal header verification for {Method} {Path}", address?.ToString() ?? "none", method, path);
                 return; // on n'appelle PAS _next() -> la pipeline s'arrête ici

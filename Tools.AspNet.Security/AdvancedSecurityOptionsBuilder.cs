@@ -2,10 +2,13 @@
 {
     public class AdvancedSecurityOptionsBuilder
     {
-        internal CorsOptionsBuilder CorsOptionsBuilder { get; } = new CorsOptionsBuilder(); 
+        internal const string CorsPolicyName = "Corsican_Policy_Department";
+
+        internal bool UseRateLimit { get; set; } = false;
+        internal RateLimitOptionsBuilder RateLimitOptionsBuilder { get; } = new RateLimitOptionsBuilder();
 
         internal bool UseCors { get; set; } = false;
-        internal const string CorsPolicyName = "Corsican_Policy_Department";
+        internal CorsOptionsBuilder CorsOptionsBuilder { get; } = new CorsOptionsBuilder(); 
 
         public void EnableCors(Action<CorsOptionsBuilder>? builder = null)
         {
@@ -13,6 +16,14 @@
 
             if (builder is not null)
                 builder(CorsOptionsBuilder);
+        }
+
+        public void EnableRate(Action<RateLimitOptionsBuilder>? builder = null)
+        {
+            UseRateLimit = true;
+
+            if (builder is not null)
+                builder(RateLimitOptionsBuilder);
         }
     }
 }

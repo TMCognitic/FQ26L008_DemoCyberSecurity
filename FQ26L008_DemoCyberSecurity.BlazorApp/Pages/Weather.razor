@@ -41,6 +41,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Http.DefaultRequestHeaders.UserAgent.Clear();
+        Http.DefaultRequestHeaders.Add("X-User-Agent", "BlazorApp");
+        Http.DefaultRequestHeaders.Add("Y-X-MyCustomHeader", "F05FB9C9-09C8-4B0E-907E-D85644F04EC6");
         forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7253/api/WeatherForecast");
     }
 
